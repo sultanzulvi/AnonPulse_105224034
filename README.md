@@ -10,7 +10,7 @@ AnonPulse adalah kanal pelaporan insiden kampus (kekerasan seksual, perundungan,
 - **Latar Belakang & Permasalahan:**  
   Banyak korban dan saksi di lingkungan kampus memilih bungkam karena relasi kuasa pelaku, ancaman akademik, serta kekhawatiran atas bocornya data pribadi (_Personally Identifiable Information_ / PII) pada formulir pengaduan institusi standar.
 - **Tujuan Produk:**  
-  Menyediakan kanal pelaporan mandiri yang menjamin kerahasiaan identitas 100%, memutus ketergantungan pada akun institusi/SSO kampus, serta memberikan transparansi proses penanganan kasus oleh Satgas PPKS.
+  Menyediakan kanal pelaporan mandiri yang menjamin kerahasiaan identitas 100%, memutus ketergantungan pada akun institusi/SSO kampus, serta memberikan transparansi proses penanganan kasus oleh Satgas PPKP.
 - **Sasaran Pengguna:**
   1. Sivitas akademika (Mahasiswa, Dosen, Tenaga Kependidikan) sebagai pelapor atau saksi insiden.
   2. Tim Satgas PPKS / Komisi Etik Kampus sebagai penindaklanjuti laporan.
@@ -162,3 +162,78 @@ git commit -m "docs: tambahkan dokumentasi komprehensif README Milestone 1"
 # 3. Unggah ke repositori GitHub utama
 git push origin main
 ```
+
+---
+
+---
+
+---
+
+## Modul Kriptografi Dasar (Tugas 1)
+
+Modul ini mengimplementasikan fondasi kriptografi modern untuk menjamin kerahasiaan (_confidentiality_), integritas (_integrity_), dan penyamaran identitas (_pseudonymity_) pada alur pelaporan insiden kampus AnonPulse.
+
+### 1. Tabel Kebutuhan Keamanan Data
+
+| No    | Elemen Data Produk                              | Tujuan Keamanan                                    | Ancaman / Risiko Nyata                                                                                                                         | Mekanisme Kriptografi                                                                            | Prioritas       |
+| :---- | :---------------------------------------------- | :------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- | :-------------- |
+| **1** | **Deskripsi / Kronologi Aduan** (`chronology`)  | Confidentiality (Kerahasiaan)                      | Kebocoran narasi sensitif korban/saksi jika database atau media penyimpanan dibobol pihak ketiga.                                              | Enkripsi Simetris Otentikasi: **AES-256-GCM** (_Authenticated Encryption with Associated Data_). | **Tinggi (P1)** |
+| **2** | **Secret Tracking Token** (Kunci Akses Pelapor) | Integrity & Pseudonymity (Integritas & Penyamaran) | Operator atau administrator sistem mengaitkan token pelacak langsung dengan sesi pengguna jika disimpan dalam bentuk teks polos (_plaintext_). | Fungsi Hash Satu Arah: **SHA-256** (hanya menyimpan nilai digest di basis data).                 | **Tinggi (P1)** |
+| **3** | **Berkas Lampiran Bukti** (`evidence file`)     | Integrity (Keaslian & Anti-Tampering)              | Berkas bukti digital diganti, diubah, atau dimanipulasi setelah dikirimkan tanpa dapat terdeteksi.                                             | _Cryptographic Digest_: **SHA-256 Checksum** terhadap _buffer_ biner berkas.                     | **Sedang (P2)** |
+
+### 2. Rancangan Teknis Komponen
+
+- **Komponen Enkripsi Simetris (AES-256-GCM)**
+  - **Masukan:** String teks kronologi aduan (UTF-8) dan kunci simetris 256-bit (Buffer 32 byte).
+  - **Proses:** Pembangkitan IV acak 12-byte standar NIST menggunakan CSPRNG, pembentukan _cipher_, proses enkripsi bertahap, dan ekstraksi _authentication tag_ (16 byte).
+  - **Keluaran:** Objek payload berisi `ciphertext` (Hex), `iv` (Hex), dan `authTag` (Hex).
+  - **Sumber Keacakan:** `crypto.randomBytes(12)` (CSPRNG bawaan Node.js).
+  - **Representasi Data:** Serialisasi string heksadesimal.
+
+- **Komponen Pembangkit & Penyerak Token Pelacak (SHA-256)**
+  - **Masukan:** Token alfanumerik acak dengan format sintetis `ANON-XXXX-XXXX`.
+  - **Proses:** Transformasi deterministik satu arah menggunakan SHA-256.
+  - **Keluaran:** String _hash_ sepanjang 64 karakter heksadesimal.
+  - **Sumber Keacakan:** `crypto.randomBytes(8)` untuk pembuatan token mentah sebelum diproses _hash_.
+  - **Representasi Data:** Heksadesimal format teks ASCII standar.
+
+- **Komponen Pemeriksa Integritas Bukti Digital (SHA-256 Checksum)**
+  - **Masukan:** Objek Buffer data biner dari berkas yang diunggah.
+  - **Proses:** Perhitungan _digest_ kriptografis SHA-256 terhadap seluruh aliran biner berkas.
+  - **Keluaran:** Nilai sidik jari berkas (_fingerprint_) sepanjang 64 karakter heksadesimal.
+  - **Sumber Keacakan:** Deterministik murni (tidak memerlukan keacakan).
+  - **Representasi Data:** Heksadesimal.
+
+### 3. Cara Menjalankan Komponen dan Pengujian Otomatis
+
+Pengujian unit otomatis mencakup 5 skenario (3 uji positif, 1 uji negatif manipulasi data, dan 1 uji batas panjang kunci):
+
+```bash
+npm run test:crypto
+```
+
+- Hasil test
+
+![Hasil Test](image-3.png)
+
+Simpan berkas `README.md` (`Ctrl + S`).
+
+---
+
+### Tahap 2: Manajemen Git (Commit, Push, dan Tagging)
+
+Sesuai aturan manajemen Git antar-mata kuliah pada proyek ini (menggunakan pesan commit `feat(kripto): ...`) dan instruksi tugas (tag `v0.1`):
+
+Jalankan runtutan perintah berikut di terminal:
+
+1. **Periksa status berkas yang berubah:**
+   ```bash
+   git status
+   git add .
+   git commit -m "feat(kripto): implementasi komponen kriptografi dasar dan skenario uji otomatis"
+   git push origin main
+   git tag -d v0.1
+   git tag -a v0.1 -m "Rilis Tugas 1 Kriptografi & PAW"
+   git push origin v0.1 --force
+   git log -1 --stat
+   ```
