@@ -19,3 +19,19 @@ Dokumen ini mencatat transparansi penggunaan kecerdasan buatan (_generative AI_)
   - Memeriksa kesesuaian algoritma terhadap standar modern (menolak sandi klasik, memastikan mode enkripsi terotentikasi).
   - Menjalankan seluruh pengujian otomatis melalui terminal via `npm run test:crypto` untuk memastikan seluruh 5 skenario berstatus lulus (`pass 5, fail 0`).
   - Melakukan verifikasi kode sumber secara manual guna menjamin tidak ada kunci privat, kata sandi, token statis, atau rahasia yang disimpan secara mentah (_hardcoded_) di dalam basis kode repositori.
+
+  ***
+
+## Tugas 1 Keamanan Komputasi dan Siber (Threat Modeling & Risk Register)
+
+- **Tool AI:** Gemini
+- **Tujuan Aktivitas:** Memperbarui inventaris aset riil, menyusun diagram alir data (DFD Level-1) dengan 3 trust boundary dan penanda kriptografi, memetakan 10 ancaman STRIDE, serta mengevaluasi matriks risiko dan kontrol pada repositori AnonPulse.
+- **Prompt / Masukan yang Diberikan:**
+  - Struktur working tree AnonPulse (`src/app/`, `src/lib/crypto/`, `mockReports.ts`, dll.).
+  - Ketentuan penugasan: pembaruan aset, pembuatan DFD ber-ID, STRIDE minimal 10 item, pemilihan 5 risiko prioritas terjustifikasi, rencana kontrol dipetakan ke Tugas 2/3, serta tagging `sec-0.1`.
+- **Hasil yang Diperoleh:**
+  - Berkas `asset-inventory.md` sesuai kondisi kode berjalan.
+  - Berkas `dfd.md` dengan visualisasi Mermaid dan batasan kepercayaan terperinci.
+  - Berkas `threat-model.md` dengan 10 ancaman berbasis STRIDE.
+  - Berkas `risk-register.md` dengan skoring Likelihood × Impact dan 5 risiko prioritas.
+- **Validasi Mandiri:** Memastikan seluruh ID elemen dan ID aset konsisten di seluruh berkas dan rencana mitigasi realistis untuk diimplementasikan pada Next.js 16.
