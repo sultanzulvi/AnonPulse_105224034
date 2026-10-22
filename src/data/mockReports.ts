@@ -1,3 +1,4 @@
+import "server-only";
 import { ReportRecord } from '@/types/report';
 
 export const MOCK_REPORTS: Record<string, ReportRecord> = {
@@ -43,3 +44,11 @@ export const MOCK_REPORTS: Record<string, ReportRecord> = {
     ],
   },
 };
+
+
+export function cariLaporan(id: string): ReportRecord | undefined {
+  if (MOCK_REPORTS[id]) {
+    return MOCK_REPORTS[id];
+  }
+  return Object.values(MOCK_REPORTS).find((item) => item.ticketCode === id);
+}
