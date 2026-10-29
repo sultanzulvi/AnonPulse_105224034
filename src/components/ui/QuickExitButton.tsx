@@ -1,4 +1,3 @@
-// src/components/ui/QuickExitButton.tsx
 "use client";
 
 import React from "react";
@@ -6,10 +5,10 @@ import React from "react";
 export const QuickExitButton: React.FC = () => {
   const handleEscape = () => {
     if (typeof window !== "undefined") {
-      // Bersihkan jejak sesi di memori browser
+
       sessionStorage.clear();
       localStorage.clear();
-      // Ganti URL seketika ke halaman umum tanpa riwayat 'Back'
+
       window.location.replace("https://id.wikipedia.org/wiki/Portal:Komunitas");
     }
   };
