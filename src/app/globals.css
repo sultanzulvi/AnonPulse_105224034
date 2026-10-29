@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-  background-color: #f8fafc; /* padanan hex dari slate-50 */
-  color: #0f172a;            /* padanan hex dari slate-900 */
+  background-color: #09090b; /* zinc-950 */
+  color: #f4f4f5;            /* zinc-100 */
   min-height: 100vh;
 }
