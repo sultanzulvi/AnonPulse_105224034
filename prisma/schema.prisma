@@ -1,0 +1,47 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+enum KategoriLaporan {
+  pelecehan
+  perundungan
+  kecurangan_akademik
+  fasilitas
+  lainnya
+}
+
+model Laporan {
+  id              Int             @id @default(autoincrement())
+  token           String          @unique
+  judul           String          @unique
+  kategori        KategoriLaporan @default(lainnya)
+  tanggalKejadian DateTime
+  lokasiKejadian  String
+  deskripsi       String          @db.Text
+  lampiran        String?
+  pernyataanSah   Boolean         @default(true)
+  tersedia        Boolean         @default(true)
+  dibuatPada      DateTime        @default(now())
+  diperbaruiPada  DateTime        @updatedAt
+
+  // Baris wajib relasi berlawanan (opposite relation field):
+  tindakLanjut    TindakLanjut[]
+}
+
+model TindakLanjut {
+  id         Int      @id @default(autoincrement())
+  laporanId  Int
+  petugas    String
+  tahap      Int
+  catatan    String   @db.Text
+  dibuatPada DateTime @default(now())
+
+  laporan    Laporan  @relation(fields: [laporanId], references: [id], onDelete: Restrict)
+
+  @@unique([laporanId, petugas])
+}

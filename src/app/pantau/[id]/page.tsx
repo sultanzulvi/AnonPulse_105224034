@@ -1,67 +1,89 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cariLaporan, MOCK_REPORTS } from "@/data/mockReports";
+import Link from "next/link";
+import { ambilLaporanDetail } from "@/lib/data";
+import { hapusTindakLanjut } from "../tindak-lanjut-actions";
+import { hapusLaporan } from "../actions";
 
-export function generateStaticParams() {
-  return Object.keys(MOCK_REPORTS).map((id) => ({ id }));
-}
-
-export default async function HalamanDetailLaporan({
+export default async function DetailLaporan({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const cleanId = decodeURIComponent(id);
+  const resolvedParams = await params;
+  const id = Number(resolvedParams.id);
 
-  const laporan = cariLaporan(cleanId);
+  if (!Number.isInteger(id) || id <= 0) {
+    notFound();
+  }
+
+  const laporan = await ambilLaporanDetail(id);
   if (!laporan) {
     notFound();
   }
 
   return (
-    <main id="konten" className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-6 shadow-xl backdrop-blur-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-        <div>
-          <span className="font-mono text-xs text-zinc-500">Kode Tiket: #{laporan.ticketCode}</span>
-          <h1 className="text-xl font-extrabold text-white mt-1">{laporan.location}</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">Insiden: {laporan.dateIncident}</p>
-        </div>
-        <span className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
-          {laporan.status}
-        </span>
-      </div>
+    <div className="space-y-6">
+      <Link
+        href="/pantau"
+        className="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors"
+      >
+        &larr; Kembali ke Daftar Pantau
+      </Link>
 
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Deskripsi Insiden:</p>
-        <p className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-xs text-zinc-300 leading-relaxed">
-          {laporan.description}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <span className="rounded-full bg-emerald-950/60 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-800/50">
+            {laporan.kategori.replace("_", " ").toUpperCase()}
+          </span>
+          <span className="font-mono text-xs text-zinc-400">Token: {laporan.token}</span>
+        </div>
+        <h1 className="mt-4 text-2xl font-bold text-white">{laporan.judul}</h1>
+        <p className="mt-1 text-xs text-zinc-500">
+          Waktu Lapor: {new Date(laporan.dibuatPada).toLocaleString("id-ID")}
         </p>
+        <p className="mt-4 text-sm text-zinc-300 leading-relaxed">{laporan.deskripsi}</p>
       </div>
 
-      {laporan.timeline && laporan.timeline.length > 0 && (
-        <div className="space-y-3 pt-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Timeline Penanganan:</p>
-          <div className="space-y-2">
-            {laporan.timeline.map((t, idx) => (
-              <div key={idx} className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-3 text-xs">
-                <div className="flex items-center justify-between text-zinc-400">
-                  <span className="font-bold text-emerald-400">{t.stage}</span>
-                  <span className="text-[11px] font-mono text-zinc-500">{t.timestamp}</span>
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-white">
+          Riwayat Tindak Lanjut ({laporan.tindakLanjut.length})
+        </h2>
+
+        {laporan.tindakLanjut.length === 0 ? (
+          <p className="text-sm text-zinc-500">Belum ada catatan tindak lanjut dari petugas.</p>
+        ) : (
+          <ul className="space-y-3">
+            {laporan.tindakLanjut.map((tl) => (
+              <li key={tl.id} className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-4">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-sm text-zinc-200">{tl.petugas}</span>
+                  <span className="text-xs bg-blue-950 text-blue-400 border border-blue-800/50 px-2.5 py-0.5 rounded-full">
+                    Tahap {tl.tahap}/5
+                  </span>
                 </div>
-                <p className="text-zinc-300 mt-1">{t.description}</p>
-              </div>
+                <p className="mt-2 text-sm text-zinc-400">{tl.catatan}</p>
+                <form action={hapusTindakLanjut.bind(null, tl.id, laporan.id)} className="mt-3">
+                  <button
+                    type="submit"
+                    className="text-xs text-red-400 hover:text-red-300 underline"
+                  >
+                    Hapus Catatan Ini
+                  </button>
+                </form>
+              </li>
             ))}
-          </div>
-        </div>
-      )}
+          </ul>
+        )}
 
-      <div className="pt-4 border-t border-zinc-800 flex justify-between items-center text-xs">
-        <span className="text-zinc-500">Dibuat: {laporan.createdAt}</span>
-        <Link href="/pantau" className="font-semibold text-emerald-400 hover:text-emerald-300 transition">
-          &larr; Kembali ke daftar pantau
-        </Link>
+        <form action={hapusLaporan.bind(null, laporan.id)} className="pt-6 border-t border-zinc-800">
+          <button
+            type="submit"
+            className="rounded-lg bg-red-900/80 px-4 py-2 text-sm font-medium text-red-200 hover:bg-red-800 border border-red-700/50 transition-colors"
+          >
+            Hapus Laporan Ini Beserta Riwayat
+          </button>
+        </form>
       </div>
-    </main>
+    </div>
   );
 }
