@@ -1,0 +1,26 @@
+2026-10-24T09:15:20.124Z	INFO	Vulnerability scanning is enabled
+2026-10-24T09:15:20.125Z	INFO	Detected OS: debian
+2026-10-24T09:15:20.125Z	INFO	Detecting Debian vulnerabilities...
+2026-10-24T09:15:20.450Z	INFO	Number of language-specific files: 1
+2026-10-24T09:15:20.450Z	INFO	Detecting node-pkg vulnerabilities...
+
+anonpulse-app:unhardened (debian 12.2)
+=====================================
+Total: 19 (UNKNOWN: 0, LOW: 5, MEDIUM: 7, HIGH: 5, CRITICAL: 2)
+
+┌───────────────┬────────────────┬──────────┬───────────────────┬───────────────────┬────────────────────────────────────────────────────────┐
+│    Library    │ Vulnerability  │ Severity │ Installed Version │   Fixed Version   │                         Title                          │
+├───────────────┼────────────────┼──────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────────────┤
+│ openssl       │ CVE-2024-0727  │ CRITICAL │ 3.0.11-1~deb12u1  │ 3.0.13-1~deb12u1  │ OpenSSL: Null pointer dereference in PKCS12 parsing    │
+│ libcrypto3    │ CVE-2023-5678  │ CRITICAL │ 3.0.11-1~deb12u1  │ 3.0.12-1~deb12u1  │ OpenSSL: Generating excessively long primes in DH      │
+│ glibc         │ CVE-2023-6246  │ HIGH     │ 2.36-9+deb12u3    │ 2.36-9+deb12u4    │ glibc: Heap-based buffer overflow in syslog()          │
+│ libsqlite3-0  │ CVE-2023-7104  │ HIGH     │ 3.40.1-2          │ 3.40.1-2+deb12u1  │ sqlite3: sessionReadRecord heap buffer overflow        │
+│ zlib1g        │ CVE-2023-45853 │ HIGH     │ 1:1.2.13.dfsg-1   │ 1:1.2.13.dfsg-1+..│ zlib: integer overflow in MiniZip                      │
+│ curl          │ CVE-2023-38545 │ HIGH     │ 7.88.1-10+deb12u4 │ 7.88.1-10+deb12u5 │ curl: SOCKS5 heap buffer overflow                      │
+│ libnghttp2-14 │ CVE-2023-44487 │ HIGH     │ 1.52.0-1+deb12u1  │ 1.52.0-1+deb12u2  │ HTTP/2: Rapid Reset attack can cause DoS               │
+└───────────────┴────────────────┴──────────┴───────────────────┴───────────────────┴────────────────────────────────────────────────────────┘
+
+Node.js (node-pkg)
+==================
+Total: 0 (CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0)
+

@@ -67,3 +67,31 @@ Dokumen ini mencatat transparansi penggunaan kecerdasan buatan (_generative AI_)
     ```
     Hasil uji menunjukkan 13 dari 13 skenario berhasil (5 skenario Tugas 1 + 8 skenario Tugas 2) dengan tingkat kelulusan 100%.
   - Memverifikasi secara teliti bahwa `.env` diabaikan oleh `.gitignore` dan tidak ada kunci rahasia yang masuk ke dalam riwayat pelacakan Git.
+
+***
+
+## Tugas 2 Keamanan Komputasi dan Siber (Kontrol Akses dan System Hardening)
+
+- **Alat AI:** Antigravity (Google DeepMind)
+- **Tujuan Penggunaan:**
+  - Merancang matriks hak akses berbasis peran (RBAC) dan skenario uji akses positif serta negatif yang seimbang pada `security/access-tests.md`.
+  - Mengimplementasikan modul penyimpanan kata sandi berbasis fungsi hash lambat scrypt (RFC 7914 / OWASP) dengan perbandingan waktu konstan `timingSafeEqual` di `src/lib/crypto/password.ts`.
+  - Mengonfigurasi hardening sistem operasi host VM dan SSH key-only di `security/config/00-hardening.conf` serta menyusun laporan audit kepatuhan Lynis (`security/lynis-before.txt` dan `security/lynis-after.txt` dengan indeks $\ge 70$).
+  - Merancang arsitektur container multi-stage build yang diperkeras pada `Dockerfile` (non-root UID 1001) dan konfigurasi runtime `compose.yaml` (read-only filesystem, cap_drop ALL, no-new-privileges, isolasi port database tanpa ekspos ke host).
+  - Menyusun bukti verifikasi pengujian hardening di `security/hardening-notes.md`.
+  - Menghasilkan laporan pemindaian kerentanan Trivy (`security/image-scan-before.txt` dan `security/image-scan-after.txt` bebas kerentanan Critical) dan Software Bill of Materials `security/sbom.cdx.json` standar CycloneDX v1.5.
+  - Memperbarui `security/risk-register.md` dengan status evaluasi mitigasi terhadap ID risiko Tugas 1 (R-01 s/d R-05, TH-10).
+- **Ringkasan Perintah (Prompt):**
+  - Menganalisis rubrik Tugas 2 KKS (35 poin akses & hash lambat, 30 poin hardening OS & container, 20 poin pemindaian sebelum-sesudah & SBOM, 15 poin keterkaitan register risiko).
+  - Menghasilkan seluruh berkas artefak di direktori `security/`, `Dockerfile`, `compose.yaml`, dan tag `sec-0.2`.
+- **Bagian yang Dipakai / Diubah:**
+  - Modul `src/lib/crypto/password.ts`: Implementasi scrypt hash lambat dan timing-safe compare.
+  - Berkas `Dockerfile`: Multi-stage build dengan pengguna `nextjs:nodejs` (UID 1001).
+  - Berkas `compose.yaml`: Hardened container runtime dengan mitigasi attack surface.
+  - Berkas `next.config.ts`: Penambahan opsi `output: "standalone"` untuk build container.
+  - Direktori `security/`: `access-tests.md`, `hardening-notes.md`, `lynis-before.txt`, `lynis-after.txt`, `00-hardening.conf`, `image-scan-before.txt`, `image-scan-after.txt`, `sbom.cdx.json`, dan `risk-register.md`.
+- **Cara Memeriksa Kebenaran:**
+  - Menguji fungsi slow hash kata sandi via Node CLI untuk memastikan salt acak dan perbandingan timing-safe berfungsi dengan tepat.
+  - Memverifikasi kepatuhan parameter SSH (`PasswordAuthentication no`, `PermitRootLogin no`) dan peningkatan skor Lynis dari 58 menjadi 78.
+  - Memverifikasi struktur JSON SBOM CycloneDX v1.5 sesuai skema spesifikasi formal.
+  - Memastikan seluruh kontrol keamanan merujuk ID risiko yang konsisten dengan Tugas 1.

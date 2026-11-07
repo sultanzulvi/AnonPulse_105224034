@@ -1,0 +1,81 @@
+# ============================================================
+# Docker Compose: Hardened Container Runtime Configuration
+# Sesuai Standar CIS Docker Benchmark & Panduan Pekan 6 KKS
+# ============================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: anonpulse-app:latest
+    container_name: anonpulse-app
+    restart: unless-stopped
+    
+    # Menjalankan container strictly sebagai pengguna non-root UID 1001
+    user: "1001:1001"
+    
+    # Filesystem bersifat read-only untuk mencegah malware menanam file/skrip ke disk
+    read_only: true
+    
+    # Direktori sementara di RAM (tmpfs) untuk operasi temporary Next.js
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64M
+    
+    # Buang seluruh Linux Capabilities bawaan (Principle of Least Privilege)
+    cap_drop:
+      - ALL
+    
+    # Cegah proses container eskalasi privilege melalui biner setuid/setgid
+    security_opt:
+      - no-new-privileges:true
+    
+    # Kredensial dan rahasia runtime disuntikkan via file .env tanpa di-bake ke image layer
+    env_file:
+      - .env
+    
+    ports:
+      - "3000:3000"
+    
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    networks:
+      - anonpulse-internal
+
+  db:
+    image: postgres:17-alpine
+    container_name: anonpulse-db
+    restart: unless-stopped
+    
+    # Kredensial database di lingkungan Docker Compose
+    environment:
+      POSTGRES_USER: praktikum
+      POSTGRES_PASSWORD: lokal-saja-123
+      POSTGRES_DB: anonpulse
+    
+    # CATATAN KEAMANAN:
+    # Port basis data sengaja TIDAK dipublikasikan ke host (tanpa "ports")!
+    # Database hanya dapat dijangkau dari dalam jaringan internal Docker Compose.
+    
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U praktikum -d anonpulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+    networks:
+      - anonpulse-internal
+
+networks:
+  anonpulse-internal:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
+

@@ -1,0 +1,148 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:8b64e051-93c2-482a-9e45-dc2983b6329a",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-05T14:35:00Z",
+    "tools": [
+      {
+        "vendor": "aquasecurity",
+        "name": "trivy",
+        "version": "0.56.2"
+      }
+    ],
+    "component": {
+      "bom-ref": "pkg:docker/anonpulse-app@latest?repository_url=local",
+      "type": "container",
+      "name": "anonpulse-app",
+      "version": "latest",
+      "description": "AnonPulse - Platform Pelaporan Kampus Terenkripsi & Anonim",
+      "purl": "pkg:docker/anonpulse-app@latest"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:npm/next@16.4.2",
+      "type": "library",
+      "name": "next",
+      "version": "16.4.2",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8b5f3a0932cd712c98d63a17e089d535eefae9cfc2807f766324e931fa317bdf"
+        }
+      ],
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/next@16.4.2"
+    },
+    {
+      "bom-ref": "pkg:npm/react@19.3.0",
+      "type": "library",
+      "name": "react",
+      "version": "19.3.0",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/react@19.3.0"
+    },
+    {
+      "bom-ref": "pkg:npm/react-dom@19.3.0",
+      "type": "library",
+      "name": "react-dom",
+      "version": "19.3.0",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/react-dom@19.3.0"
+    },
+    {
+      "bom-ref": "pkg:npm/@prisma/client@7.10.1",
+      "type": "library",
+      "name": "@prisma/client",
+      "version": "7.10.1",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "purl": "pkg:npm/%40prisma/client@7.10.1"
+    },
+    {
+      "bom-ref": "pkg:npm/@prisma/adapter-pg@7.10.1",
+      "type": "library",
+      "name": "@prisma/adapter-pg",
+      "version": "7.10.1",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "purl": "pkg:npm/%40prisma/adapter-pg@7.10.1"
+    },
+    {
+      "bom-ref": "pkg:npm/pg@8.23.1",
+      "type": "library",
+      "name": "pg",
+      "version": "8.23.1",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/pg@8.23.1"
+    },
+    {
+      "bom-ref": "pkg:npm/zod@4.6.7",
+      "type": "library",
+      "name": "zod",
+      "version": "4.6.7",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/zod@4.6.7"
+    },
+    {
+      "bom-ref": "pkg:npm/server-only@0.0.1",
+      "type": "library",
+      "name": "server-only",
+      "version": "0.0.1",
+      "scope": "required",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/server-only@0.0.1"
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/alpine-baselayout@3.6.5-r0?distro=3.20.3",
+      "type": "operating-system",
+      "name": "alpine-baselayout",
+      "version": "3.6.5-r0",
+      "licenses": [{ "license": { "id": "GPL-2.0-only" } }],
+      "purl": "pkg:apk/alpine/alpine-baselayout@3.6.5-r0?distro=3.20.3"
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/busybox@1.36.1-r29?distro=3.20.3",
+      "type": "operating-system",
+      "name": "busybox",
+      "version": "1.36.1-r29",
+      "licenses": [{ "license": { "id": "GPL-2.0-only" } }],
+      "purl": "pkg:apk/alpine/busybox@1.36.1-r29?distro=3.20.3"
+    },
+    {
+      "bom-ref": "pkg:apk/alpine/musl@1.2.5-r0?distro=3.20.3",
+      "type": "operating-system",
+      "name": "musl",
+      "version": "1.2.5-r0",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:apk/alpine/musl@1.2.5-r0?distro=3.20.3"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:docker/anonpulse-app@latest?repository_url=local",
+      "dependsOn": [
+        "pkg:npm/next@16.4.2",
+        "pkg:npm/react@19.3.0",
+        "pkg:npm/react-dom@19.3.0",
+        "pkg:npm/@prisma/client@7.10.1",
+        "pkg:npm/@prisma/adapter-pg@7.10.1",
+        "pkg:npm/pg@8.23.1",
+        "pkg:npm/zod@4.6.7",
+        "pkg:npm/server-only@0.0.1",
+        "pkg:apk/alpine/alpine-baselayout@3.6.5-r0?distro=3.20.3",
+        "pkg:apk/alpine/busybox@1.36.1-r29?distro=3.20.3",
+        "pkg:apk/alpine/musl@1.2.5-r0?distro=3.20.3"
+      ]
+    }
+  ]
+}
+

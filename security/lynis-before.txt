@@ -1,0 +1,58 @@
+[ Lynis 3.1.2 ]
+================================================================================
+  - Copyright 2007-2024 - CISOfy | https://cisofy.com/lynis/
+  - Enterprise support available (compliance, plugins, interface)
+================================================================================
+
+[+] Initializing program
+--------------------------------------
+  - Detecting OS...                              [ Linux ]
+  - Operating system release:                    [ Ubuntu 24.04 LTS ]
+  - Kernel version:                              [ 6.8.0-45-generic ]
+  - Hostname:                                    [ anonpulse-server ]
+
+[+] System Tools
+--------------------------------------
+  - Scanning available binaries...
+
+[+] SSH Support
+--------------------------------------
+  - Checking running SSH daemon                  [ FOUND ]
+    * SSH configuration                          [ /etc/ssh/sshd_config ]
+    * OpenSSH option: Port                       [ 22 ]
+    * OpenSSH option: Protocol                   [ 2 ]
+    * OpenSSH option: PermitRootLogin            [ YES ]         [ WARNING ]
+    * OpenSSH option: PasswordAuthentication     [ YES ]         [ WARNING ]
+    * OpenSSH option: X11Forwarding              [ YES ]         [ SUGGESTION ]
+    * OpenSSH option: MaxAuthTries               [ 6 ]           [ SUGGESTION ]
+
+[+] Kernel Hardening
+--------------------------------------
+  - Comparing sysctl key pairs with scan profile
+    * fs.protected_hardlinks                     [ 1 ]           [ OK ]
+    * fs.protected_symlinks                      [ 1 ]           [ OK ]
+    * fs.suid_dumpable                           [ 2 ]           [ DIFFERENT ]
+    * kernel.randomize_va_space                  [ 2 ]           [ OK ]
+    * net.ipv4.conf.all.rp_filter                [ 0 ]           [ DIFFERENT ]
+    * net.ipv4.conf.all.accept_redirects         [ 1 ]           [ DIFFERENT ]
+    * net.ipv4.tcp_syncookies                    [ 1 ]           [ OK ]
+
+[+] Containers and Virtualization
+--------------------------------------
+  - Docker daemon status                         [ ACTIVE ]
+  - Docker socket permissions                    [ 0660 (root:docker) ]
+
+================================================================================
+  Lynis security scan details:
+
+  Hardening index : 58 [#############       ]
+  Tests performed : 246
+  Plugins enabled : 1
+
+  Components:
+  - Firewall                                     [ DISABLED ]
+  - Malware scanner                              [ NOT INSTALLED ]
+  - SSH Hardening                                [ NOT COMPLIANT ]
+
+================================================================================
+
