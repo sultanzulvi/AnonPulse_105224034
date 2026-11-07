@@ -1,7 +1,7 @@
 # Dokumen Teknis Modul 6 PostgreSQL dan Prisma ORM
 
-Nama: Sultan Zulvi Risda
-NIM: 105224034
+- Nama: Sultan Zulvi Risda
+- NIM: 105224034
 
 ## 1. Rancangan Data
 
