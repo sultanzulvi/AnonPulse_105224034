@@ -35,3 +35,35 @@ Dokumen ini mencatat transparansi penggunaan kecerdasan buatan (_generative AI_)
   - Berkas `threat-model.md` dengan 10 ancaman berbasis STRIDE.
   - Berkas `risk-register.md` dengan skoring Likelihood × Impact dan 5 risiko prioritas.
 - **Validasi Mandiri:** Memastikan seluruh ID elemen dan ID aset konsisten di seluruh berkas dan rencana mitigasi realistis untuk diimplementasikan pada Next.js 16.
+
+***
+
+## Tugas 2 Kriptografi (Enkripsi Terautentikasi dan Integritas Data)
+
+- **Alat AI:** Antigravity (Google DeepMind)
+- **Tujuan Penggunaan:**
+  - Merancang arsitektur enkripsi terautentikasi (AEAD) berbasis `aes-256-gcm` dengan pengikatan Additional Authenticated Data (AAD) untuk mencegah manipulasi dan pertukaran metadata antar-tiket.
+  - Mengimplementasikan manajemen siklus hidup kunci dengan pemisahan domain menggunakan HKDF-SHA256 (RFC 5869) sesuai prinsip *Key Separation* (NIST SP 800-57 Part 1 §5.2).
+  - Merancang alur integrasi yang menghubungkan komponen Tugas 1 (pembangkit token dan hash SHA-256) dengan komponen Tugas 2 (kunci turunan HKDF dan AEAD).
+  - Menyusun 8 skenario pengujian otomatis yang mencakup uji positif alur terintegrasi, uji negatif modifikasi ciphertext, tag, AAD, kunci salah, pemisahan kunci, dan penanganan masukan di batas.
+  - Menyusun dokumen analisis keputusan arsitektur `KEPUTUSAN.md` berbasis tabel kebutuhan, mekanisme, dan alasan.
+- **Ringkasan Perintah (Prompt):**
+  - Menganalisis parameter kriptografi AEAD (kunci 256-bit, nonce 96-bit CSPRNG, AAD, tag 128-bit) dan risiko *nonce reuse*.
+  - Menyusun modul `src/lib/crypto/kunci.ts`, `src/lib/crypto/aead.ts`, `src/lib/crypto/masukan.ts`, dan `src/lib/crypto/alur-laporan.ts`.
+  - Membuat skenario uji kondisi sah dan tidak sah pada `tests/crypto-tugas2.test.ts` serta memperbarui `package.json` runner.
+- **Bagian yang Dipakai / Diubah:**
+  - Modul baru `src/lib/crypto/kunci.ts`: Fungsi CSPRNG `bangkitkanKunciInduk`, pemuatan kunci `muatKunciInduk`, dan derivasi `turunkanKunci` via `crypto.hkdfSync`.
+  - Modul baru `src/lib/crypto/aead.ts`: Fungsi `enkripsiAEAD` dan `dekripsiAEAD` dengan parameter 32-byte key, 12-byte IV unik per operasi, AAD, dan 16-byte authTag.
+  - Modul baru `src/lib/crypto/masukan.ts`: Validasi batas dan normalisasi Unicode NFC untuk mencegah disparitas representasi byte.
+  - Modul baru `src/lib/crypto/alur-laporan.ts`: Satu alur yang menghubungkan T1 (`generateTrackingToken`, `hashToken`) ke T2 (`turunkanKunci`, `enkripsiAEAD`).
+  - Berkas pengujian `tests/crypto-tugas2.test.ts`: 8 skenario uji otomatis.
+  - Berkas dokumentasi `KEPUTUSAN.md`: Dokumentasi lengkap rubrik R2 K1–K5.
+  - Berkas template `.env.example`: Menyediakan panduan konfigurasi variabel lingkungan `APP_MASTER_KEY` dengan data sintetis tanpa rahasia.
+- **Cara Memeriksa Kebenaran Kode:**
+  - Memastikan parameter GCM memenuhi standar NIST SP 800-38D (IV 12-byte CSPRNG per enkripsi, tag 16-byte).
+  - Menjalankan seluruh pengujian unit otomatis melalui terminal:
+    ```bash
+    npm run test:crypto
+    ```
+    Hasil uji menunjukkan 13 dari 13 skenario berhasil (5 skenario Tugas 1 + 8 skenario Tugas 2) dengan tingkat kelulusan 100%.
+  - Memverifikasi secara teliti bahwa `.env` diabaikan oleh `.gitignore` dan tidak ada kunci rahasia yang masuk ke dalam riwayat pelacakan Git.

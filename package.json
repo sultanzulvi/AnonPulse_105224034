@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:crypto": "node --import tsx --test tests/crypto.test.ts",
+    "test:crypto": "node --import tsx --test tests/crypto.test.ts tests/crypto-tugas2.test.ts",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
