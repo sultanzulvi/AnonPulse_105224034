@@ -7,9 +7,10 @@ export const metadata: Metadata = {
   title: "Pantau Tiket | AnonPulse",
 };
 
+export const instant = false;
+
 export default async function HalamanPantau() {
   await connection();
-  // Membaca langsung 5 baris laporan dari PostgreSQL via Prisma Client
   const laporanList = await ambilDaftarLaporan();
 
   return (
@@ -35,9 +36,11 @@ export default async function HalamanPantau() {
             <h2 className="mt-3 text-lg font-semibold text-white">
               {item.judul}
             </h2>
+
             <p className="mt-1 text-xs text-zinc-500">
               Dibuat: {new Date(item.dibuatPada).toLocaleDateString("id-ID")}
             </p>
+
             <p className="mt-3 text-sm text-zinc-400 line-clamp-2">
               {item.deskripsi}
             </p>
