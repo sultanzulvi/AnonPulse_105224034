@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { skemaLaporan } from "@/lib/skema";
+import { z } from "zod";
 
 export type FormState = {
   sukses?: boolean;
@@ -80,4 +82,36 @@ export async function hapusLaporan(id: number) {
 
   revalidatePath("/pantau");
   redirect("/pantau");
+}
+
+export async function ubahLaporan(
+  id: number,
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const hasil = skemaLaporan.safeParse(Object.fromEntries(formData));
+  if (!hasil.success) {
+    return { galat: z.flattenError(hasil.error).fieldErrors };
+  }
+
+  try {
+    await prisma.laporan.update({
+      where: { id },
+      data: hasil.data,
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return { galat: { judul: ["Judul laporan sudah terdaftar"] } };
+      }
+      if (e.code === "P2025") {
+        return { pesan: "Laporan tidak ditemukan atau sudah dihapus." };
+      }
+    }
+    throw e;
+  }
+
+  revalidatePath("/pantau");
+  revalidatePath(`/pantau/${id}`);
+  return { sukses: true, pesan: "Perubahan laporan disimpan." };
 }
