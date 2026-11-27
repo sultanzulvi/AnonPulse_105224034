@@ -1,0 +1,459 @@
+openapi: 3.1.0
+info:
+  title: AnonPulse RESTful API
+  version: 0.3.0
+  summary: API Pelaporan Insiden Kampus Anonim & Terenkripsi
+  description: >-
+    Spesifikasi OpenAPI 3.1.0 untuk layanan RESTful API AnonPulse (/api/v1)
+    yang mengelola entitas Laporan dan TindakLanjut menggunakan standar
+    Problem Details (RFC 9457).
+  contact:
+    name: Sultan Zulvi Risda
+    url: https://github.com/sultanzulvi/AnonPulse_105224034
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Server pengembangan lokal Next.js
+
+security: []
+
+tags:
+  - name: Laporan
+    description: Operasi koleksi dan detail entitas laporan insiden kampus.
+  - name: TindakLanjut
+    description: Operasi pembacaan riwayat tindak lanjut yang berelasi dengan laporan.
+
+paths:
+  /laporan:
+    get:
+      tags:
+        - Laporan
+      summary: Ambil daftar laporan dengan paginasi dan filter kategori
+      description: Mengambil daftar laporan secara terpaginasi beserta metadata total baris.
+      operationId: daftarLaporan
+      parameters:
+        - name: halaman
+          in: query
+          required: false
+          description: Nomor halaman (mulai dari 1).
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: batas
+          in: query
+          required: false
+          description: Jumlah item maksimum per halaman (1 sampai 50).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: kategori
+          in: query
+          required: false
+          description: Filter berdasarkan kategori laporan.
+          schema:
+            $ref: "#/components/schemas/KategoriLaporan"
+      responses:
+        "200":
+          description: Daftar laporan berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Laporan"
+                  meta:
+                    type: object
+                    required:
+                      - halaman
+                      - batas
+                      - total
+                    properties:
+                      halaman:
+                        type: integer
+                      batas:
+                        type: integer
+                      total:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+    post:
+      tags:
+        - Laporan
+      summary: Buat laporan insiden baru
+      description: Membuat entitas laporan baru dengan validasi Zod dan menerbitkan token unik.
+      operationId: buatLaporan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BuatLaporan"
+      responses:
+        "201":
+          description: Laporan baru berhasil dibuat.
+          headers:
+            Location:
+              description: URI relatif menuju detail laporan yang baru dibuat.
+              schema:
+                type: string
+                examples:
+                  - /api/v1/laporan/6
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Laporan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/UnprocessableContent"
+
+  /laporan/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdLaporan"
+
+    get:
+      tags:
+        - Laporan
+      summary: Ambil detail satu laporan berdasarkan ID
+      description: Mengambil representasi detail satu laporan berdasarkan ID bulat positif.
+      operationId: ambilLaporan
+      responses:
+        "200":
+          description: Detail laporan ditemukan.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Laporan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags:
+        - Laporan
+      summary: Ubah sebagian data laporan
+      description: Memperbarui satu atau lebih field pada laporan secara parsial.
+      operationId: ubahLaporan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UbahLaporan"
+      responses:
+        "200":
+          description: Laporan berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Laporan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/UnprocessableContent"
+
+    delete:
+      tags:
+        - Laporan
+      summary: Hapus satu laporan tanpa riwayat tindak lanjut
+      description: >-
+        Menghapus laporan bila belum memiliki riwayat tindak lanjut. Bila laporan masih
+        memiliki catatan tindak lanjut aktif (ON DELETE RESTRICT), server menolak dengan 409 Conflict.
+      operationId: hapusLaporan
+      responses:
+        "204":
+          description: Laporan berhasil dihapus (tanpa body respons).
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /laporan/{id}/tindak-lanjut:
+    parameters:
+      - $ref: "#/components/parameters/IdLaporan"
+
+    get:
+      tags:
+        - TindakLanjut
+      summary: Ambil daftar tindak lanjut milik satu laporan
+      description: Mengambil seluruh riwayat catatan tindak lanjut yang berelasi dengan laporan tertentu.
+      operationId: daftarTindakLanjutLaporan
+      responses:
+        "200":
+          description: Daftar tindak lanjut berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TindakLanjut"
+                  meta:
+                    type: object
+                    required:
+                      - laporanId
+                      - total
+                    properties:
+                      laporanId:
+                        type: integer
+                      total:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    IdLaporan:
+      name: id
+      in: path
+      required: true
+      description: ID numerik bulat positif laporan.
+      schema:
+        type: integer
+        minimum: 1
+
+  schemas:
+    KategoriLaporan:
+      type: string
+      enum:
+        - pelecehan
+        - perundungan
+        - kecurangan_akademik
+        - fasilitas
+        - lainnya
+
+    Laporan:
+      type: object
+      required:
+        - id
+        - token
+        - judul
+        - kategori
+        - tanggalKejadian
+        - lokasiKejadian
+        - deskripsi
+        - tersedia
+        - dibuatPada
+        - diperbaruiPada
+      properties:
+        id:
+          type: integer
+          examples: [1]
+        token:
+          type: string
+          examples: ["TKN-PLH-001"]
+        judul:
+          type: string
+          examples: ["Dugaan Pelecehan Verbal di Koridor Gedung A"]
+        kategori:
+          $ref: "#/components/schemas/KategoriLaporan"
+        tanggalKejadian:
+          type: string
+          format: date-time
+        lokasiKejadian:
+          type: string
+          examples: ["Koridor Gedung A Lantai 2"]
+        deskripsi:
+          type: string
+          examples: ["Terjadi insiden catcalling berulang saat jam pergantian perkuliahan."]
+        tersedia:
+          type: boolean
+          examples: [true]
+        lampiran:
+          type:
+            - string
+            - "null"
+        dibuatPada:
+          type: string
+          format: date-time
+        diperbaruiPada:
+          type: string
+          format: date-time
+
+    BuatLaporan:
+      type: object
+      required:
+        - judul
+        - deskripsi
+      properties:
+        judul:
+          type: string
+          minLength: 5
+          maxLength: 100
+          examples: ["Laporan Uji REST API Modul 8"]
+        kategori:
+          $ref: "#/components/schemas/KategoriLaporan"
+        deskripsi:
+          type: string
+          minLength: 10
+          maxLength: 1000
+          examples: ["Kronologi laporan sintetis untuk pengujian endpoint POST REST API."]
+        lokasiKejadian:
+          type: string
+          minLength: 3
+          maxLength: 150
+          default: "Lingkungan Kampus"
+        tanggalKejadian:
+          type: string
+          format: date-time
+        tersedia:
+          type: boolean
+          default: true
+        lampiran:
+          type:
+            - string
+            - "null"
+
+    UbahLaporan:
+      type: object
+      minProperties: 1
+      properties:
+        judul:
+          type: string
+          minLength: 5
+          maxLength: 100
+        kategori:
+          $ref: "#/components/schemas/KategoriLaporan"
+        deskripsi:
+          type: string
+          minLength: 10
+          maxLength: 1000
+        lokasiKejadian:
+          type: string
+          minLength: 3
+          maxLength: 150
+        tersedia:
+          type: boolean
+        lampiran:
+          type:
+            - string
+            - "null"
+
+    TindakLanjut:
+      type: object
+      required:
+        - id
+        - laporanId
+        - petugas
+        - tahap
+        - catatan
+        - dibuatPada
+      properties:
+        id:
+          type: integer
+          examples: [1]
+        laporanId:
+          type: integer
+          examples: [1]
+        petugas:
+          type: string
+          examples: ["Satgas Investigasi"]
+        tahap:
+          type: integer
+          minimum: 1
+          maximum: 5
+          examples: [1]
+        catatan:
+          type: string
+          examples: ["Laporan telah diverifikasi dan masuk tahap investigasi awal."]
+        dibuatPada:
+          type: string
+          format: date-time
+
+    ProblemDetails:
+      type: object
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          examples: ["about:blank"]
+        title:
+          type: string
+          examples: ["Bad Request"]
+        status:
+          type: integer
+          examples: [400]
+        detail:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  responses:
+    BadRequest:
+      description: Permintaan tidak valid (parameter kueri, ID path, atau sintaks JSON rusak).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+
+    NotFound:
+      description: Resource laporan yang diminta tidak ditemukan.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+
+    Conflict:
+      description: Konflik constraint basis data (judul duplikat P2002 atau masih memiliki relasi tindak lanjut).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+
+    UnprocessableContent:
+      description: Sintaks JSON valid tetapi isi field melanggar aturan validasi skema Zod.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
