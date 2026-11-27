@@ -10,8 +10,11 @@ export const skemaLaporan = z.object({
     "lainnya",
   ]),
   deskripsi: z.string().min(10, "Deskripsi minimal 10 karakter").max(1000, "Deskripsi maksimal 1000 karakter"),
-  tersedia: z.boolean().default(true),
+  // Modul 7: "true" -> true, "false" -> false; nilai lain ditolak
+  tersedia: z.stringbool(),
 });
+
+export type MasukanLaporan = z.infer<typeof skemaLaporan>;
 
 export const skemaTindakLanjut = z.object({
   petugas: z.string().min(2, "Nama petugas minimal 2 karakter").max(60, "Nama petugas maksimal 60 karakter"),

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ambilLaporanDetail } from "@/lib/data";
 import { hapusTindakLanjut } from "../tindak-lanjut-actions";
 import { hapusLaporan } from "../actions";
+import FormTindakLanjut from "@/components/FormTindakLanjut";
 
 export default async function DetailLaporan({
   params,
@@ -32,9 +33,20 @@ export default async function DetailLaporan({
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="rounded-full bg-emerald-950/60 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-800/50">
-            {laporan.kategori.replace("_", " ").toUpperCase()}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-950/60 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-800/50">
+              {laporan.kategori.replace("_", " ").toUpperCase()}
+            </span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium border ${
+                laporan.tersedia
+                  ? "bg-zinc-900 text-zinc-300 border-zinc-700"
+                  : "bg-amber-950/60 text-amber-300 border-amber-800/50"
+              }`}
+            >
+              {laporan.tersedia ? "Tersedia" : "Sementara tidak tersedia"}
+            </span>
+          </div>
           <span className="font-mono text-xs text-zinc-400">Token: {laporan.token}</span>
         </div>
         <h1 className="mt-4 text-2xl font-bold text-white">{laporan.judul}</h1>
@@ -42,6 +54,14 @@ export default async function DetailLaporan({
           Waktu Lapor: {new Date(laporan.dibuatPada).toLocaleString("id-ID")}
         </p>
         <p className="mt-4 text-sm text-zinc-300 leading-relaxed">{laporan.deskripsi}</p>
+        <div className="mt-4 pt-3 border-t border-zinc-800/60">
+          <Link
+            href={`/pantau/${laporan.id}/edit`}
+            className="text-xs font-medium text-emerald-400 hover:text-emerald-300 underline"
+          >
+            Ubah Data / Status Laporan
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -74,6 +94,8 @@ export default async function DetailLaporan({
             ))}
           </ul>
         )}
+
+        <FormTindakLanjut laporanId={laporan.id} />
 
         <form action={hapusLaporan.bind(null, laporan.id)} className="pt-6 border-t border-zinc-800">
           <button
